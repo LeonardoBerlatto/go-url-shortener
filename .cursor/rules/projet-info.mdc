@@ -1,0 +1,26 @@
+---
+description: 
+globs: **.go
+alwaysApply: false
+---
+# Projet Info
+
+## Context
+You are building a REST API in Golang for shortening URLs
+
+### Features
+1. Shorten URLs 
+2. Get Shortened urls for a given user
+3. Get redirected to original URL
+
+### Tests
+- Write unit tests when necessary, covering all business rules
+- Use testify to test
+
+### Tech Stack
+- Go
+- Gin
+- DynamoDB
+- Docker
+- Kubernetes
+- Redis
