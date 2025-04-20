@@ -30,13 +30,9 @@ func Initialize(env config.Config) (*Server, error) {
 		return nil, fmt.Errorf("failed to initialize DynamoDB storage: %w", err)
 	}
 
-	var redisCache *storage.RedisCache
-	if env.RedisURL != "" {
-		var err error
-		redisCache, err = storage.NewRedisCache(env.RedisURL)
-		if err != nil {
-			log.Printf("Warning: Failed to initialize Redis cache: %v. Continuing without cache.", err)
-		}
+	redisCache, err := storage.NewRedisCache(env.RedisURL)
+	if err != nil {
+		log.Fatalf("Error: Failed to initialize Redis cache: %v", err)
 	}
 
 	baseURL := fmt.Sprintf("%s:%s", env.Host, env.Port)
