@@ -1,5 +1,27 @@
 services:
-
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - DYNAMODB_ENDPOINT=http://dynamodb:8000
+      - AWS_ACCESS_KEY_ID=local
+      - AWS_SECRET_ACCESS_KEY=local
+      - AWS_REGION=us-east-1
+      - HOST=localhost
+      - PORT=8080
+      - GIN_MODE=release
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+      - dynamodb
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 5s
+      timeout: 10s
+      retries: 3
 
   redis:
     image: redis:7-alpine
