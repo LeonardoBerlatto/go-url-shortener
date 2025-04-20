@@ -2,11 +2,12 @@ package server
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/gin-gonic/gin"
 	"github.com/leonardoberlatto/go-url-shortener/internal/config"
 	"github.com/leonardoberlatto/go-url-shortener/internal/handlers"
+	"github.com/leonardoberlatto/go-url-shortener/internal/logger"
+	"github.com/leonardoberlatto/go-url-shortener/internal/middleware"
 	"github.com/leonardoberlatto/go-url-shortener/internal/routes"
 	"github.com/leonardoberlatto/go-url-shortener/internal/service"
 	"github.com/leonardoberlatto/go-url-shortener/internal/storage"
@@ -17,7 +18,11 @@ type Server struct {
 }
 
 func Initialize(env config.Config) (*Server, error) {
-	router := gin.Default()
+	router := gin.New()
+
+	router.Use(gin.Recovery())
+	router.Use(middleware.Logger())
+
 	server := &Server{router: router}
 
 	dynamoStorage, err := storage.NewDynamoDBStorage(
@@ -32,7 +37,7 @@ func Initialize(env config.Config) (*Server, error) {
 
 	redisCache, err := storage.NewRedisCache(env.RedisURL)
 	if err != nil {
-		log.Fatalf("Error: Failed to initialize Redis cache: %v", err)
+		logger.Fatalf("Error: Failed to initialize Redis cache: %v", err)
 	}
 
 	baseURL := fmt.Sprintf("%s:%s", env.Host, env.Port)

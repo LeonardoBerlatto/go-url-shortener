@@ -2,13 +2,13 @@ package storage
 
 import (
 	"context"
-	"log"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"github.com/leonardoberlatto/go-url-shortener/internal/logger"
 	"github.com/leonardoberlatto/go-url-shortener/internal/models"
 )
 
@@ -25,7 +25,7 @@ func NewDynamoDBStorage(endpoint, region, accessKeyID, secretAccessKey string) (
 		config.WithRegion("us-east-1"),
 	)
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
 
 	client := dynamodb.NewFromConfig(cfg, func(o *dynamodb.Options) {
