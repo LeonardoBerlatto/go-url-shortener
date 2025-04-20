@@ -41,7 +41,6 @@ func Logger() gin.HandlerFunc {
 				"method", method,
 				"path", path,
 				"latency", latency,
-				"ip", clientIP,
 			).Infof("HTTP %s %s", method, path)
 		}
 	}
