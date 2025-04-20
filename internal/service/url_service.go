@@ -84,11 +84,7 @@ func (s *URLService) Resolve(ctx context.Context, shortID string) (string, error
 
 	mapping, err = s.cache.Get(ctx, shortID)
 	if err == nil {
-		go func() {
-			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-			defer cancel()
-			_ = s.storage.IncrementHits(ctx, shortID)
-		}()
+		go s.incrementHits(shortID)
 		return mapping.LongURL, nil
 	}
 
@@ -101,15 +97,16 @@ func (s *URLService) Resolve(ctx context.Context, shortID string) (string, error
 		return "", err
 	}
 
-	go func(m models.URLMapping) {
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
-		_ = s.cache.Set(ctx, m)
-	}(mapping)
-
+	go s.updateMappingCache(mapping)
 	go s.incrementHits(shortID)
 
 	return mapping.LongURL, nil
+}
+
+func (s *URLService) updateMappingCache(mapping models.URLMapping) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	_ = s.cache.Set(ctx, mapping)
 }
 
 func (s *URLService) incrementHits(shortID string) {
