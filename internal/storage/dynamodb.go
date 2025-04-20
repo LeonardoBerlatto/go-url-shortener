@@ -16,12 +16,10 @@ const (
 	tableName = "UrlMappings"
 )
 
-// DynamoDBStorage implements the Storage interface using AWS DynamoDB
 type DynamoDBStorage struct {
 	client *dynamodb.Client
 }
 
-// NewDynamoDBStorage creates a new DynamoDB storage instance
 func NewDynamoDBStorage(endpoint, region, accessKeyID, secretAccessKey string) (*DynamoDBStorage, error) {
 	cfg, err := config.LoadDefaultConfig(context.TODO(),
 		config.WithRegion("us-east-1"),
@@ -41,7 +39,6 @@ func NewDynamoDBStorage(endpoint, region, accessKeyID, secretAccessKey string) (
 	}, nil
 }
 
-// Store persists a URL mapping
 func (d *DynamoDBStorage) Store(ctx context.Context, mapping models.URLMapping) error {
 	item, err := attributevalue.MarshalMap(mapping)
 	if err != nil {
@@ -55,7 +52,6 @@ func (d *DynamoDBStorage) Store(ctx context.Context, mapping models.URLMapping) 
 	})
 
 	if err != nil {
-		// Check if it's a condition failure (item already exists)
 		if _, ok := err.(*types.ConditionalCheckFailedException); ok {
 			return ErrorConflict
 		}
@@ -65,7 +61,6 @@ func (d *DynamoDBStorage) Store(ctx context.Context, mapping models.URLMapping) 
 	return nil
 }
 
-// Get retrieves a URL mapping by short ID
 func (d *DynamoDBStorage) Get(ctx context.Context, shortID string) (models.URLMapping, error) {
 	result, err := d.client.GetItem(ctx, &dynamodb.GetItemInput{
 		TableName: aws.String(tableName),
@@ -91,7 +86,6 @@ func (d *DynamoDBStorage) Get(ctx context.Context, shortID string) (models.URLMa
 	return mapping, nil
 }
 
-// Delete removes a URL mapping
 func (d *DynamoDBStorage) Delete(ctx context.Context, shortID string) error {
 	_, err := d.client.DeleteItem(ctx, &dynamodb.DeleteItemInput{
 		TableName: aws.String(tableName),

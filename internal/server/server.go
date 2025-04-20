@@ -12,17 +12,14 @@ import (
 	"github.com/leonardoberlatto/go-url-shortener/internal/storage"
 )
 
-// Server encapsulates the HTTP server
 type Server struct {
 	router *gin.Engine
 }
 
-// Initialize sets up the server with all dependencies
 func Initialize(env config.Config) (*Server, error) {
 	router := gin.Default()
 	server := &Server{router: router}
 
-	// Initialize storage
 	dynamoStorage, err := storage.NewDynamoDBStorage(
 		env.DynamoDBEndpoint,
 		env.AWSRegion,
@@ -33,7 +30,6 @@ func Initialize(env config.Config) (*Server, error) {
 		return nil, fmt.Errorf("failed to initialize DynamoDB storage: %w", err)
 	}
 
-	// Initialize cache (optional)
 	var redisCache *storage.RedisCache
 	if env.RedisURL != "" {
 		var err error
@@ -43,7 +39,7 @@ func Initialize(env config.Config) (*Server, error) {
 		}
 	}
 
-	baseURL := fmt.Sprintf("http://localhost:%s", env.Port) // In production, this should be configurable
+	baseURL := fmt.Sprintf("%s:%s", env.Host, env.Port)
 	urlService := service.NewURLService(dynamoStorage, redisCache, baseURL)
 
 	urlHandler := handlers.NewURLHandler(urlService)

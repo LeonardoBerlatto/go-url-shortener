@@ -5,6 +5,7 @@ import (
 )
 
 type Config struct {
+	Host               string `mapstructure:"HOST"`
 	Port               string `mapstructure:"PORT"`
 	RedisURL           string `mapstructure:"REDIS_URL"`
 	DynamoDBEndpoint   string `mapstructure:"DYNAMODB_ENDPOINT"`

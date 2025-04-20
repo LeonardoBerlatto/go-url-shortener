@@ -38,17 +38,14 @@ func NewURLService(storage storage.Storage, cache *storage.RedisCache, baseURL s
 func (s *URLService) Shorten(ctx context.Context, req models.ShortenRequest) (models.ShortenResponse, error) {
 	shortID := req.CustomShortID
 
-	// If no custom ID provided, generate one
 	if shortID == "" {
 		generated := uuid.New().String()
 		shortID = strings.ReplaceAll(generated, "-", "")[:defaultIDLength]
 	} else {
-		// Validate custom short ID
 		if !validShortIDPattern.MatchString(shortID) {
 			return models.ShortenResponse{}, fmt.Errorf("invalid custom short ID format")
 		}
 
-		// Check if the custom ID already exists
 		exists, err := s.storage.CheckExists(ctx, shortID)
 		if err != nil {
 			return models.ShortenResponse{}, err
@@ -58,7 +55,6 @@ func (s *URLService) Shorten(ctx context.Context, req models.ShortenRequest) (mo
 		}
 	}
 
-	// Create URL mapping
 	mapping := models.URLMapping{
 		ShortID:   shortID,
 		LongURL:   req.LongURL,
@@ -66,17 +62,12 @@ func (s *URLService) Shorten(ctx context.Context, req models.ShortenRequest) (mo
 		Hits:      0,
 	}
 
-	// Store in persistent storage
 	if err := s.storage.Store(ctx, mapping); err != nil {
 		return models.ShortenResponse{}, err
 	}
 
-	// Store in cache
-	if s.cache != nil {
-		if err := s.cache.Set(ctx, mapping); err != nil {
-			// Just log the error, don't fail the operation
-			fmt.Printf("Error caching URL mapping: %v\n", err)
-		}
+	if err := s.cache.Set(ctx, mapping); err != nil {
+		fmt.Printf("Error caching URL mapping: %v\n", err)
 	}
 
 	return models.ShortenResponse{
@@ -91,39 +82,30 @@ func (s *URLService) Resolve(ctx context.Context, shortID string) (string, error
 	var mapping models.URLMapping
 	var err error
 
-	// Try to get from cache first
-	if s.cache != nil {
-		mapping, err = s.cache.Get(ctx, shortID)
-		if err == nil {
-			// Increment hits in background
-			go func() {
-				ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-				defer cancel()
-				_ = s.storage.IncrementHits(ctx, shortID)
-			}()
-			return mapping.LongURL, nil
-		}
-
-		// Cache miss, only proceed if it's a not found error
-		if err != storage.ErrorNotFound {
-			fmt.Printf("Cache error: %v\n", err)
-		}
+	mapping, err = s.cache.Get(ctx, shortID)
+	if err == nil {
+		go func() {
+			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
+			_ = s.storage.IncrementHits(ctx, shortID)
+		}()
+		return mapping.LongURL, nil
 	}
 
-	// Get from storage
+	if err != storage.ErrorNotFound {
+		fmt.Printf("Cache error: %v\n", err)
+	}
+
 	mapping, err = s.storage.Get(ctx, shortID)
 	if err != nil {
 		return "", err
 	}
 
-	// Update cache in background
-	if s.cache != nil {
-		go func(m models.URLMapping) {
-			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-			defer cancel()
-			_ = s.cache.Set(ctx, m)
-		}(mapping)
-	}
+	go func(m models.URLMapping) {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		_ = s.cache.Set(ctx, m)
+	}(mapping)
 
 	go s.incrementHits(shortID)
 
@@ -142,11 +124,8 @@ func (s *URLService) Delete(ctx context.Context, shortID string) error {
 		return err
 	}
 
-	// Delete from cache
-	if s.cache != nil {
-		if err := s.cache.Delete(ctx, shortID); err != nil {
-			fmt.Printf("Error deleting URL mapping from cache: %v\n", err)
-		}
+	if err := s.cache.Delete(ctx, shortID); err != nil {
+		fmt.Printf("Error deleting URL mapping from cache: %v\n", err)
 	}
 
 	return nil
