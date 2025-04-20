@@ -13,7 +13,8 @@ import (
 )
 
 const (
-	tableName = "UrlMappings"
+	tableName    = "UrlMappings"
+	partitionKey = "ShortID"
 )
 
 type DynamoDBStorage struct {
@@ -64,9 +65,7 @@ func (d *DynamoDBStorage) Store(ctx context.Context, mapping models.URLMapping) 
 func (d *DynamoDBStorage) Get(ctx context.Context, shortID string) (models.URLMapping, error) {
 	result, err := d.client.GetItem(ctx, &dynamodb.GetItemInput{
 		TableName: aws.String(tableName),
-		Key: map[string]types.AttributeValue{
-			"ShortID": &types.AttributeValueMemberS{Value: shortID},
-		},
+		Key:       mapPartitionKey(shortID),
 	})
 
 	if err != nil {
@@ -89,20 +88,16 @@ func (d *DynamoDBStorage) Get(ctx context.Context, shortID string) (models.URLMa
 func (d *DynamoDBStorage) Delete(ctx context.Context, shortID string) error {
 	_, err := d.client.DeleteItem(ctx, &dynamodb.DeleteItemInput{
 		TableName: aws.String(tableName),
-		Key: map[string]types.AttributeValue{
-			"ShortID": &types.AttributeValueMemberS{Value: shortID},
-		},
+		Key:       mapPartitionKey(shortID),
 	})
 	return err
 }
 
 func (d *DynamoDBStorage) CheckExists(ctx context.Context, shortID string) (bool, error) {
 	result, err := d.client.GetItem(ctx, &dynamodb.GetItemInput{
-		TableName: aws.String(tableName),
-		Key: map[string]types.AttributeValue{
-			"ShortID": &types.AttributeValueMemberS{Value: shortID},
-		},
-		ProjectionExpression: aws.String("ShortID"),
+		TableName:            aws.String(tableName),
+		Key:                  mapPartitionKey(shortID),
+		ProjectionExpression: aws.String(partitionKey),
 	})
 
 	if err != nil {
@@ -114,14 +109,18 @@ func (d *DynamoDBStorage) CheckExists(ctx context.Context, shortID string) (bool
 
 func (d *DynamoDBStorage) IncrementHits(ctx context.Context, shortID string) error {
 	_, err := d.client.UpdateItem(ctx, &dynamodb.UpdateItemInput{
-		TableName: aws.String(tableName),
-		Key: map[string]types.AttributeValue{
-			"ShortID": &types.AttributeValueMemberS{Value: shortID},
-		},
+		TableName:        aws.String(tableName),
+		Key:              mapPartitionKey(shortID),
 		UpdateExpression: aws.String("ADD Hits :inc"),
 		ExpressionAttributeValues: map[string]types.AttributeValue{
 			":inc": &types.AttributeValueMemberN{Value: "1"},
 		},
 	})
 	return err
+}
+
+func mapPartitionKey(shortID string) map[string]types.AttributeValue {
+	return map[string]types.AttributeValue{
+		"partitionKey": &types.AttributeValueMemberS{Value: shortID},
+	}
 }
