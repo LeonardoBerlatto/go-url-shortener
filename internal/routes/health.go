@@ -6,5 +6,8 @@ import (
 )
 
 func registerHealthRoutes(router *gin.Engine) {
-	router.GET("/health", handlers.Health)
+	healthGroup := router.Group("/health")
+	{
+		healthGroup.GET("", handlers.Health)
+	}
 }

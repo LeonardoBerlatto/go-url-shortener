@@ -2,16 +2,11 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/leonardoberlatto/go-url-shortener/internal/handlers"
 )
 
-func SetupRoutes(router *gin.Engine) {
+// SetupRoutes configures all the routes for the application
+func SetupRoutes(router *gin.Engine, urlHandler *handlers.URLHandler) {
 	registerHealthRoutes(router)
-
-	v1 := router.Group("/api/v1")
-	{
-		v1.POST("/shorten", nil)
-		v1.GET("/:code", nil)
-		v1.GET("/urls", nil)
-		v1.DELETE("/:code", nil)
-	}
+	registerURLRoutes(router, urlHandler)
 }
