@@ -129,11 +129,11 @@ func With(args ...interface{}) *zap.SugaredLogger {
 	return log.With(args...)
 }
 
-func Sync() error {
-	if log == nil {
-		return nil
+func Sync() {
+	err := log.Sync()
+	if err != nil {
+		fmt.Println("Error syncing logger:", err.Error())
 	}
-	return log.Sync()
 }
 
 func initDefaultLogger() {
