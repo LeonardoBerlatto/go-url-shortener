@@ -58,10 +58,7 @@ definitions:
     type: object
 host: localhost:8080
 info:
-  contact:
-    email: support@urlshortener.example.com
-    name: API Support
-    url: https://github.com/leonardoberlatto/go-url-shortener
+  contact: {}
   description: A simple URL shortener service API
   license:
     name: MIT

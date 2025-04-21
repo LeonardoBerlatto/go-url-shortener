@@ -10,11 +10,7 @@ const docTemplate = `{
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
         "termsOfService": "http://swagger.io/terms/",
-        "contact": {
-            "name": "API Support",
-            "url": "https://github.com/leonardoberlatto/go-url-shortener",
-            "email": "support@urlshortener.example.com"
-        },
+        "contact": {},
         "license": {
             "name": "MIT",
             "url": "https://opensource.org/licenses/MIT"

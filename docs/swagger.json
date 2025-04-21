@@ -4,11 +4,7 @@
         "description": "A simple URL shortener service API",
         "title": "URL Shortener API",
         "termsOfService": "http://swagger.io/terms/",
-        "contact": {
-            "name": "API Support",
-            "url": "https://github.com/leonardoberlatto/go-url-shortener",
-            "email": "support@urlshortener.example.com"
-        },
+        "contact": {},
         "license": {
             "name": "MIT",
             "url": "https://opensource.org/licenses/MIT"

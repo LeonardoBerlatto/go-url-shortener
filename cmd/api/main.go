@@ -12,10 +12,6 @@ import (
 // @description     A simple URL shortener service API
 // @termsOfService  http://swagger.io/terms/
 
-// @contact.name   API Support
-// @contact.url    https://github.com/leonardoberlatto/go-url-shortener
-// @contact.email  support@urlshortener.example.com
-
 // @license.name  MIT
 // @license.url   https://opensource.org/licenses/MIT
 
