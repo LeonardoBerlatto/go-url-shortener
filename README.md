@@ -50,3 +50,21 @@ GET /:code
 ```
 DELETE /api/v1/urls/:code
 ```
+
+## API Documentation
+
+The API is documented using Swagger/OpenAPI. You can access the interactive API documentation by running the application and navigating to:
+
+```
+http://localhost:8080/swagger/index.html
+```
+
+This provides a user-friendly interface to view all available endpoints, understand the request/response formats, and even test the API directly from your browser.
+
+### Generating API Documentation
+
+The Swagger documentation is generated automatically using swaggo:
+
+```bash
+swag init -g cmd/api/main.go -o docs
+```
