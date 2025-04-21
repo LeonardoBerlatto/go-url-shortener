@@ -19,6 +19,18 @@ func NewURLHandler(urlService *service.URLService) *URLHandler {
 	}
 }
 
+// ShortenURL godoc
+// @Summary      Shorten a URL
+// @Description  Create a short URL from a long URL
+// @Tags         urls
+// @Accept       json
+// @Produce      json
+// @Param        request  body      models.ShortenRequest  true  "URL to shorten"
+// @Success      201      {object}  models.ShortenResponse
+// @Failure      400      {object}  models.ErrorResponse
+// @Failure      409      {object}  models.ErrorResponse
+// @Failure      500      {object}  models.ErrorResponse
+// @Router       /api/v1/urls [post]
 func (h *URLHandler) ShortenURL(c *gin.Context) {
 	var req models.ShortenRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -41,6 +53,16 @@ func (h *URLHandler) ShortenURL(c *gin.Context) {
 	c.JSON(http.StatusCreated, response)
 }
 
+// RedirectURL godoc
+// @Summary      Redirect to original URL
+// @Description  Redirects to the original URL associated with the short code
+// @Tags         urls
+// @Produce      plain
+// @Param        code    path      string  true  "Short URL code"
+// @Success      301     {string}  string  "Redirect to original URL"
+// @Failure      404     {object}  models.ErrorResponse
+// @Failure      500     {object}  models.ErrorResponse
+// @Router       /{code} [get]
 func (h *URLHandler) RedirectURL(c *gin.Context) {
 	shortID := c.Param("code")
 
@@ -59,6 +81,16 @@ func (h *URLHandler) RedirectURL(c *gin.Context) {
 	c.Redirect(http.StatusMovedPermanently, longURL)
 }
 
+// DeleteURL godoc
+// @Summary      Delete a shortened URL
+// @Description  Deletes a shortened URL by its code
+// @Tags         urls
+// @Produce      json
+// @Param        code    path      string  true  "Short URL code"
+// @Success      204     {string}  string  "No content"
+// @Failure      404     {object}  models.ErrorResponse
+// @Failure      500     {object}  models.ErrorResponse
+// @Router       /api/v1/urls/{code} [delete]
 func (h *URLHandler) DeleteURL(c *gin.Context) {
 	shortID := c.Param("code")
 
@@ -75,6 +107,17 @@ func (h *URLHandler) DeleteURL(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
+// ListURLs godoc
+// @Summary      List all shortened URLs
+// @Description  Returns a paginated list of all shortened URLs
+// @Tags         urls
+// @Produce      json
+// @Param        pageNumber    query     int  false  "Page number"  default(1)  minimum(1)
+// @Param        pageSize      query     int  false  "Page size"    default(10) minimum(1) maximum(100)
+// @Success      200           {object}  models.PaginatedURLsResponse
+// @Failure      400           {object}  models.ErrorResponse
+// @Failure      500           {object}  models.ErrorResponse
+// @Router       /api/v1/urls [get]
 func (h *URLHandler) ListURLs(c *gin.Context) {
 	var pagination models.PaginationRequest
 	if err := c.ShouldBindQuery(&pagination); err != nil {

@@ -11,6 +11,8 @@ import (
 	"github.com/leonardoberlatto/go-url-shortener/internal/routes"
 	"github.com/leonardoberlatto/go-url-shortener/internal/service"
 	"github.com/leonardoberlatto/go-url-shortener/internal/storage"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 type Server struct {
@@ -22,6 +24,9 @@ func Initialize(env config.Config) (*Server, error) {
 
 	router.Use(gin.Recovery())
 	router.Use(middleware.Logger())
+
+	// Swagger endpoint
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	server := &Server{router: router}
 

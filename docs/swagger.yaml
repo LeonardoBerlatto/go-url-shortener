@@ -1,0 +1,205 @@
+basePath: /
+definitions:
+  models.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  models.PaginatedURLsResponse:
+    properties:
+      content:
+        items:
+          $ref: '#/definitions/models.URLMapping'
+        type: array
+      pageNumber:
+        type: integer
+      pageSize:
+        type: integer
+      totalCount:
+        type: integer
+      totalPages:
+        type: integer
+    type: object
+  models.ShortenRequest:
+    properties:
+      customShortId:
+        type: string
+      longUrl:
+        type: string
+    required:
+    - longUrl
+    type: object
+  models.ShortenResponse:
+    properties:
+      createdAt:
+        type: string
+      longUrl:
+        type: string
+      shortId:
+        type: string
+      shortUrl:
+        type: string
+    type: object
+  models.URLMapping:
+    properties:
+      createdAt:
+        type: string
+      hits:
+        type: integer
+      longUrl:
+        type: string
+      shortId:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@urlshortener.example.com
+    name: API Support
+    url: https://github.com/leonardoberlatto/go-url-shortener
+  description: A simple URL shortener service API
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: http://swagger.io/terms/
+  title: URL Shortener API
+  version: "1.0"
+paths:
+  /{code}:
+    get:
+      description: Redirects to the original URL associated with the short code
+      parameters:
+      - description: Short URL code
+        in: path
+        name: code
+        required: true
+        type: string
+      produces:
+      - text/plain
+      responses:
+        "301":
+          description: Redirect to original URL
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Redirect to original URL
+      tags:
+      - urls
+  /api/v1/urls:
+    get:
+      description: Returns a paginated list of all shortened URLs
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        minimum: 1
+        name: pageNumber
+        type: integer
+      - default: 10
+        description: Page size
+        in: query
+        maximum: 100
+        minimum: 1
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.PaginatedURLsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: List all shortened URLs
+      tags:
+      - urls
+    post:
+      consumes:
+      - application/json
+      description: Create a short URL from a long URL
+      parameters:
+      - description: URL to shorten
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.ShortenRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.ShortenResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Shorten a URL
+      tags:
+      - urls
+  /api/v1/urls/{code}:
+    delete:
+      description: Deletes a shortened URL by its code
+      parameters:
+      - description: Short URL code
+        in: path
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No content
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Delete a shortened URL
+      tags:
+      - urls
+  /health:
+    get:
+      description: Returns the health status of the application
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Health check endpoint
+      tags:
+      - health
+swagger: "2.0"
