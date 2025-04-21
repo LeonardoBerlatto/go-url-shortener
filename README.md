@@ -46,6 +46,14 @@ GET /:code
 ```
 
 
+### List ShortenedURLs
+```
+GET /api/v1/urls
+```
+
+
+
+
 ### Delete URL
 ```
 DELETE /api/v1/urls/:code
