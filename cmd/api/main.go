@@ -1,10 +1,26 @@
 package main
 
 import (
+	_ "github.com/leonardoberlatto/go-url-shortener/docs" // Import swagger docs
 	"github.com/leonardoberlatto/go-url-shortener/internal/config"
 	"github.com/leonardoberlatto/go-url-shortener/internal/logger"
 	"github.com/leonardoberlatto/go-url-shortener/internal/server"
 )
+
+// @title           URL Shortener API
+// @version         1.0
+// @description     A simple URL shortener service API
+// @termsOfService  http://swagger.io/terms/
+
+// @contact.name   API Support
+// @contact.url    https://github.com/leonardoberlatto/go-url-shortener
+// @contact.email  support@urlshortener.example.com
+
+// @license.name  MIT
+// @license.url   https://opensource.org/licenses/MIT
+
+// @host      localhost:8080
+// @BasePath  /
 
 func main() {
 	defer logger.Sync()
