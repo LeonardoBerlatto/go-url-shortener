@@ -16,4 +16,6 @@ type Storage interface {
 	CheckExists(ctx context.Context, shortID string) (bool, error)
 
 	IncrementHits(ctx context.Context, shortID string) error
+
+	ListURLs(ctx context.Context, pageNumber, pageSize int) ([]models.URLMapping, int64, error)
 }

@@ -74,3 +74,19 @@ func (h *URLHandler) DeleteURL(c *gin.Context) {
 
 	c.Status(http.StatusNoContent)
 }
+
+func (h *URLHandler) ListURLs(c *gin.Context) {
+	var pagination models.PaginationRequest
+	if err := c.ShouldBindQuery(&pagination); err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "Invalid pagination parameters: " + err.Error()})
+		return
+	}
+
+	response, err := h.urlService.ListURLs(c.Request.Context(), pagination.PageNumber, pagination.PageSize)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Failed to list URLs: " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, response)
+}

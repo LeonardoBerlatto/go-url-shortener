@@ -127,3 +127,23 @@ func (s *URLService) Delete(ctx context.Context, shortID string) error {
 
 	return nil
 }
+
+func (s *URLService) ListURLs(ctx context.Context, pageNumber, pageSize int) (models.PaginatedURLsResponse, error) {
+	urls, totalCount, err := s.storage.ListURLs(ctx, pageNumber, pageSize)
+	if err != nil {
+		return models.PaginatedURLsResponse{}, err
+	}
+
+	totalPages := int(totalCount) / pageSize
+	if int(totalCount)%pageSize > 0 {
+		totalPages++
+	}
+
+	return models.PaginatedURLsResponse{
+		Content:    urls,
+		TotalCount: totalCount,
+		PageNumber: pageNumber,
+		PageSize:   pageSize,
+		TotalPages: totalPages,
+	}, nil
+}

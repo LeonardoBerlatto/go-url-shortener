@@ -23,3 +23,16 @@ type URLMapping struct {
 	CreatedAt time.Time `json:"createdAt"`
 	Hits      int64     `json:"hits"`
 }
+
+type PaginationRequest struct {
+	PageNumber int `form:"pageNumber,default=1" binding:"min=1"`
+	PageSize   int `form:"pageSize,default=10" binding:"min=1,max=100"`
+}
+
+type PaginatedURLsResponse struct {
+	Content    []URLMapping `json:"content"`
+	TotalCount int64        `json:"totalCount"`
+	PageNumber int          `json:"pageNumber"`
+	PageSize   int          `json:"pageSize"`
+	TotalPages int          `json:"totalPages"`
+}
